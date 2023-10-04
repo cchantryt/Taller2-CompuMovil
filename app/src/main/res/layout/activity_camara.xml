@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp"
+    tools:context="CamaraActivity">
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/switchFotoVideo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:text="Video "
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+
+    <Button
+        android:id="@+id/botonTake"
+        android:layout_width="168dp"
+        android:layout_height="70dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+
+        android:backgroundTint="@color/blue_400"
+        android:drawableLeft="@drawable/baseline_camera_alt_24"
+        android:text="Take"
+
+        app:iconGravity="textStart"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/botonGaleria"
+        android:layout_width="168dp"
+        android:layout_height="70dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+
+        android:backgroundTint="@color/green_500"
+        android:drawableLeft="@drawable/baseline_insert_photo_24"
+
+        android:text="PICK FROM GALLERY"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ImageView
+        android:id="@+id/previewFoto"
+        android:layout_width="356dp"
+        android:layout_height="498dp"
+        app:layout_constraintBottom_toTopOf="@+id/botonTake"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.49"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/switchFotoVideo"
+        app:layout_constraintVertical_bias="0.468"
+        tools:src="@tools:sample/backgrounds/scenic" />
+
+    <VideoView
+        android:id="@+id/previewVideo"
+        android:layout_width="358dp"
+        android:layout_height="504dp"
+        app:layout_constraintBottom_toTopOf="@+id/botonTake"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/switchFotoVideo"
+        android:visibility="gone" />
+    />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
