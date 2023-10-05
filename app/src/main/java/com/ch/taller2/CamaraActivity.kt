@@ -5,8 +5,10 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.view.View
 import android.widget.ImageView
@@ -19,6 +21,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 
 import com.ch.taller2.databinding.ActivityCamaraBinding
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 
 class CamaraActivity : AppCompatActivity() {
@@ -92,29 +97,22 @@ class CamaraActivity : AppCompatActivity() {
 
     //Funcion para tomar fotos
     private fun dispatchTakePictureIntent() {
-        //Intent para tomar la foto
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         try {
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
         } catch (e: ActivityNotFoundException) {
             Toast.makeText(this, "No se pudo tomar la foto", Toast.LENGTH_SHORT).show()
         }
-
-        //Guardar foto
     }
-
 
     //Funcion para tomar videos
     private fun dispatchTakeVideoIntent() {
-        //Intent para tomar el video
         val takeVideoIntent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
         try {
             startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE)
         } catch (e: ActivityNotFoundException) {
             Toast.makeText(this, "No se pudo tomar el video", Toast.LENGTH_SHORT).show()
         }
-
-        //Guardar video
     }
 
 
@@ -126,6 +124,9 @@ class CamaraActivity : AppCompatActivity() {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             //Obtener la foto
             val imageBitmap = data?.extras?.get("data") as? Bitmap
+
+            // Guardar la imagen en la ubicación deseada
+            saveImageToLocation(imageBitmap)
 
             //Mostrar la foto
             //Ocultar el video
@@ -139,6 +140,9 @@ class CamaraActivity : AppCompatActivity() {
             //Obtener el video
             val videoUri = data?.data
 
+            // Guardar el video en la ubicación deseada
+            saveVideoToLocation(videoUri)
+
             //Mostrar el video
             //Ocultar la foto
             binding.previewFoto.visibility = View.GONE
@@ -148,12 +152,66 @@ class CamaraActivity : AppCompatActivity() {
         }
     }
 
+    //Funciones para guardado de fotos y videos
+    // Ruta de almacenamiento
+    private val storageDirectory: File by lazy {
+        getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
+    }
+
+    private fun saveImageToLocation(bitmap: Bitmap?) {
+        if (bitmap != null) {
+            val imageFile = File(storageDirectory, "image_${System.currentTimeMillis()}.jpg")
+
+            try {
+                val outputStream = FileOutputStream(imageFile)
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+                outputStream.close()
+                Toast.makeText(this, "Imagen guardada", Toast.LENGTH_SHORT).show()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+
+    private fun saveVideoToLocation(videoUri: Uri?) {
+        videoUri?.let {
+            val videoFile = File(storageDirectory, "video_${System.currentTimeMillis()}.mp4")
+
+            try {
+                val inputStream = contentResolver.openInputStream(videoUri)
+                val outputStream = FileOutputStream(videoFile)
+                inputStream?.copyTo(outputStream)
+                inputStream?.close()
+                outputStream.close()
+                Toast.makeText(this, "Video guardado", Toast.LENGTH_SHORT).show()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     /*------------------------------------------------------------ FUNCIONES GALERIA ------------------------------------------------------------*/
     private fun openGallery() {
-        val intentPick = Intent(Intent.ACTION_PICK)
-        intentPick.type =
-            if(binding.switchFotoVideo.isChecked) "video/*" else "image/*"
-            startActivityForResult(intentPick, 1)
+        val galleryIntent = Intent(Intent.ACTION_VIEW)
+
+        // Establece el tipo de contenido para imágenes y videos
+        galleryIntent.type = "image/* video/*"
+
+        // Establece la URI para abrir la ubicación de almacenamiento de tu aplicación
+        val storageDirectoryUri = Uri.parse("file://${storageDirectory.absolutePath}")
+
+        // Establece la URI de la ubicación de almacenamiento en el intent
+        galleryIntent.data = storageDirectoryUri
+
+        // Verifica si hay una actividad disponible para manejar este intent
+        if (galleryIntent.resolveActivity(packageManager) != null) {
+            startActivity(galleryIntent)
+        } else {
+            Toast.makeText(this, "No hay aplicaciones disponibles para abrir la galería", Toast.LENGTH_SHORT).show()
+        }
     }
+
+
 
 }

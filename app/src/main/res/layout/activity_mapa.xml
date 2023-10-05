@@ -22,7 +22,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/switchFotoVideo"
         app:startIconContentDescription="Logo de mapa"
-        app:startIconDrawable="@drawable/baseline_map_24">
+        app:startIconDrawable="@drawable/baseline_directions_24">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editText"
