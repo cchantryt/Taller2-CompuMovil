@@ -1,6 +1,7 @@
 package com.ch.taller2
 
 import android.Manifest
+import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.ContentValues
 import android.content.Intent
@@ -36,12 +37,15 @@ class CamaraActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCamaraBinding
 
-    val REQUEST_PICK = 3
-
-    /*Permisos camara*/
+    /*Codes camara*/
     val PERM_CAMERA_CODE = 101
     val REQUEST_IMAGE_CAPTURE = 1
     val REQUEST_VIDEO_CAPTURE = 2
+
+    /*Codes Galeria*/
+    private var selectedUri: Uri? = null  // Variable para almacenar la URI seleccionada
+
+
     private lateinit var file: File
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -121,8 +125,7 @@ class CamaraActivity : AppCompatActivity() {
         }
     }
 
-
-    //Funcion para visualizar el resultado de la foto o video
+    //Funcion para visualizar el resultado de la foto o video y seleccion de galeria
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -156,14 +159,35 @@ class CamaraActivity : AppCompatActivity() {
             binding.previewVideo.setVideoURI(videoUri)
             binding.previewVideo.start()
         }
+
+        if (resultCode == Activity.RESULT_OK && data != null) {
+            selectedUri = data.data
+
+            // Mostrar la imagen o video en el ImageView o VideoView según el switch
+            if (binding.switchFotoVideo.isChecked) {
+                // Mostrar video
+                binding.previewFoto.visibility = View.GONE
+                binding.previewVideo.visibility = View.VISIBLE
+                binding.previewVideo.setVideoURI(selectedUri)
+                // Configurar el VideoView
+                setupVideoView()
+                binding.previewVideo.start()
+            } else {
+                // Mostrar imagen
+                binding.previewFoto.visibility = View.VISIBLE
+                binding.previewVideo.visibility = View.GONE
+                binding.previewFoto.setImageURI(selectedUri)
+            }
+        }
     }
 
-    //Funciones para guardado de fotos y videos
+    //Funciones de guardado de fotos y videos
     // Ruta de almacenamiento
     private val storageDirectory: File by lazy {
         getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
     }
 
+    // Guardar imagen
     private fun saveImageToLocation(bitmap: Bitmap?) {
         if (bitmap != null) {
             val imageFile = File(storageDirectory, "image_${System.currentTimeMillis()}.jpg")
@@ -187,6 +211,7 @@ class CamaraActivity : AppCompatActivity() {
         }
     }
 
+    // Guardar video
     private fun saveVideoToLocation(videoUri: Uri?) {
         videoUri?.let {
             val videoFile = File(storageDirectory, "video_${System.currentTimeMillis()}.mp4")
@@ -215,10 +240,19 @@ class CamaraActivity : AppCompatActivity() {
         }
     }
     /*------------------------------------------------------------ FUNCIONES GALERIA ------------------------------------------------------------*/
+    //Funcion para abrir la galeria
     private fun openGallery() {
         val intentPick = Intent(Intent.ACTION_PICK)
-        intentPick.type =
-            if(binding.switchFotoVideo.isChecked) "video/*" else "image/*"
+        intentPick.type = if (binding.switchFotoVideo.isChecked) "video/*" else "image/*"
         startActivityForResult(intentPick, 1)
+    }
+
+    //Funcion para configurar el VideoView
+    private fun setupVideoView() {
+        // Configurar un listener para detectar cuando el video termina
+        binding.previewVideo.setOnCompletionListener {
+            // Reiniciar la reproducción del video desde el principio
+            binding.previewVideo.start()
+        }
     }
 }

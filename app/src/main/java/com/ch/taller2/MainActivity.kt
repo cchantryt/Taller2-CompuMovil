@@ -30,7 +30,6 @@ class MainActivity : AppCompatActivity() {
 *
 * Galeria:
 * Permisos de galeria
-* Mostrar fotos/videos
 *
 *
 * Mapa:
