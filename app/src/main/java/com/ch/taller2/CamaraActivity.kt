@@ -3,34 +3,22 @@ package com.ch.taller2
 import android.Manifest
 import android.app.Activity
 import android.content.ActivityNotFoundException
-import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.view.View
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.MediaController
 import android.widget.Toast
-import android.widget.VideoView
-
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
-
 import com.ch.taller2.databinding.ActivityCamaraBinding
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.io.OutputStream
-import java.text.DateFormat
-import java.util.Date
+
 
 
 class CamaraActivity : AppCompatActivity() {
