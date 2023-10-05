@@ -2,9 +2,11 @@ package com.ch.taller2
 
 import android.Manifest
 import android.content.ActivityNotFoundException
+import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Bundle
@@ -19,11 +21,15 @@ import android.widget.VideoView
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 
 import com.ch.taller2.databinding.ActivityCamaraBinding
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.OutputStream
+import java.text.DateFormat
+import java.util.Date
 
 
 class CamaraActivity : AppCompatActivity() {
@@ -36,7 +42,7 @@ class CamaraActivity : AppCompatActivity() {
     val PERM_CAMERA_CODE = 101
     val REQUEST_IMAGE_CAPTURE = 1
     val REQUEST_VIDEO_CAPTURE = 2
-    var outputPath: Uri? = null
+    private lateinit var file: File
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -167,12 +173,19 @@ class CamaraActivity : AppCompatActivity() {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
                 outputStream.close()
                 Toast.makeText(this, "Imagen guardada", Toast.LENGTH_SHORT).show()
+
+                // Agregar la imagen a la galería utilizando MediaStore
+                MediaStore.Images.Media.insertImage(
+                    contentResolver,
+                    imageFile.absolutePath,
+                    imageFile.name,
+                    "Descripción de la imagen"
+                )
             } catch (e: IOException) {
                 e.printStackTrace()
             }
         }
     }
-
 
     private fun saveVideoToLocation(videoUri: Uri?) {
         videoUri?.let {
@@ -185,12 +198,22 @@ class CamaraActivity : AppCompatActivity() {
                 inputStream?.close()
                 outputStream.close()
                 Toast.makeText(this, "Video guardado", Toast.LENGTH_SHORT).show()
+
+                // Agregar el video a la galería
+                // En lugar de insertar directamente en MediaStore, copiamos el archivo a la carpeta de la galería
+                val galleryFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
+                val galleryVideoFile = File(galleryFolder, videoFile.name)
+
+                videoFile.copyTo(galleryVideoFile)
+
+                // Notificar a la galería
+                sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(galleryVideoFile)))
+
             } catch (e: IOException) {
                 e.printStackTrace()
             }
         }
     }
-
     /*------------------------------------------------------------ FUNCIONES GALERIA ------------------------------------------------------------*/
     private fun openGallery() {
         val intentPick = Intent(Intent.ACTION_PICK)
@@ -198,7 +221,4 @@ class CamaraActivity : AppCompatActivity() {
             if(binding.switchFotoVideo.isChecked) "video/*" else "image/*"
         startActivityForResult(intentPick, 1)
     }
-
-
-
 }
