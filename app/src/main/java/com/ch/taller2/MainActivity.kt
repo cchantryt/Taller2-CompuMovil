@@ -25,12 +25,13 @@ class MainActivity : AppCompatActivity() {
 
 /*PENDIENTES
 *
-* Camara:
-* Guardar fotos/videos
+* Camara: Completado
+*
 *
 * Galeria:
 * Permisos de galeria
 * Mostrar fotos/videos
+*
 *
 * Mapa:
 * Todo

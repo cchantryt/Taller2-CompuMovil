@@ -193,23 +193,10 @@ class CamaraActivity : AppCompatActivity() {
 
     /*------------------------------------------------------------ FUNCIONES GALERIA ------------------------------------------------------------*/
     private fun openGallery() {
-        val galleryIntent = Intent(Intent.ACTION_VIEW)
-
-        // Establece el tipo de contenido para imágenes y videos
-        galleryIntent.type = "image/* video/*"
-
-        // Establece la URI para abrir la ubicación de almacenamiento de tu aplicación
-        val storageDirectoryUri = Uri.parse("file://${storageDirectory.absolutePath}")
-
-        // Establece la URI de la ubicación de almacenamiento en el intent
-        galleryIntent.data = storageDirectoryUri
-
-        // Verifica si hay una actividad disponible para manejar este intent
-        if (galleryIntent.resolveActivity(packageManager) != null) {
-            startActivity(galleryIntent)
-        } else {
-            Toast.makeText(this, "No hay aplicaciones disponibles para abrir la galería", Toast.LENGTH_SHORT).show()
-        }
+        val intentPick = Intent(Intent.ACTION_PICK)
+        intentPick.type =
+            if(binding.switchFotoVideo.isChecked) "video/*" else "image/*"
+        startActivityForResult(intentPick, 1)
     }
 
 
