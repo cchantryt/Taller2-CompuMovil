@@ -27,10 +27,8 @@ class MainActivity : AppCompatActivity() {
 *
 * Camara: Completado
 *
-*
 * Galeria:
 * Permisos de galeria
-*
 *
 * Mapa:
 * Todo
