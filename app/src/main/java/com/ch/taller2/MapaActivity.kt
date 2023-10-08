@@ -41,6 +41,12 @@ class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
 
+        //Punto que ubica al usuario
+        map.isMyLocationEnabled = true
+
+        //Controles de zoom
+        map.uiSettings.isZoomControlsEnabled = true
+
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
             ActivityCompat.checkSelfPermission(this,
