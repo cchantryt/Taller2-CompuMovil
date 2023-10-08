@@ -38,6 +38,7 @@ class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
     }
 
+    /*------------------------------------------------------------ FUNCIONES MAPA ------------------------------------------------------------*/
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
 
