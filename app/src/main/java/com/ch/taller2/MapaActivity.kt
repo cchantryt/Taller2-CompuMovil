@@ -17,17 +17,28 @@ import com.google.android.gms.maps.model.MarkerOptions
 import android.Manifest
 import android.content.Context
 import android.content.res.Resources
+import android.graphics.Color
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.util.Log
 import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.android.gms.maps.model.Polyline
+import com.google.android.gms.maps.model.PolylineOptions
 
 class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityMapaBinding
+
+    //Mapa
     private lateinit var map: GoogleMap
+
+    //Ubicacion usuario
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    //Seguimiento usuario
+    private var rutaPolyline: Polyline? = null
+    private val rutaCoordenadas: MutableList<LatLng> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +68,16 @@ class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
         //Controles de zoom
         map.uiSettings.isZoomControlsEnabled = true
 
+        //Listener para registrar puntos de la ruta cuando el usuario toca el mapa
+        map.setOnMapClickListener { latLng ->
+            //Agrega el punto al final de la ruta
+            rutaCoordenadas.add(latLng)
+
+            //Actualizar la polyline
+            actualizarRutaPolyline()
+        }
+
+
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
             ActivityCompat.checkSelfPermission(this,
@@ -73,15 +94,27 @@ class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
         }
     }
+
     //Registramos los datos del sensor de luminosidad
     override fun onResume() {
         super.onResume()
         registerLightSensorListener()
     }
-
     override fun onPause() {
         super.onPause()
         unregisterLightSensorListener()
+    }
+
+    //Funcion para actualizar la polyline
+    private fun actualizarRutaPolyline() {
+        rutaPolyline?.remove() // Elimina la polyline existente
+
+        // Crea una nueva polyline con las coordenadas actuales de la ruta
+        rutaPolyline = map.addPolyline(PolylineOptions()
+            .addAll(rutaCoordenadas)
+            .color(Color.BLUE)
+            .width(5f)
+        )
     }
 
     /*------------------------------------------------------------ FUNCIONES SENSOR LUMINOSIDAD ------------------------------------------------------------*/

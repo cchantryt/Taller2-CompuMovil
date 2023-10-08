@@ -51,6 +51,11 @@ class MainActivity : AppCompatActivity() {
 * Permisos de galeria
 *
 * Mapa:
-* Todo
+* Probar polyline
+* Buscar direccion ingresada, crear pin y mover la camara al punto encontrado (Geocoder)
+* Evento LongClick: Titulo del marcador (Geocoder)
+*
+* Bono:
+* TODO
 *
 * */
