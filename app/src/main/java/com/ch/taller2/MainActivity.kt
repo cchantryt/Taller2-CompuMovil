@@ -39,9 +39,7 @@ class MainActivity : AppCompatActivity() {
                     requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), PERM_LOCATION_CODE)
                 }
             }
-
         }
-
     }
 }
 
