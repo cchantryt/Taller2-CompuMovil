@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
 *
 * Mapa:
 * Probar polyline
-* Buscar direccion ingresada, crear pin y mover la camara al punto encontrado (Geocoder)
+* Buscar direccion ingresada, crear pin y mover la camara al punto encontrado (Geocoder) (no funcional)
 * Evento LongClick: Titulo del marcador (Geocoder)
 * Switch para activar/desactivar seguimiento
 *

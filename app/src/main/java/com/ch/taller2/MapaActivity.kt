@@ -22,10 +22,13 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.location.Geocoder
 import android.util.Log
+import android.widget.Toast
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
+import java.io.IOException
 
 class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityMapaBinding
@@ -50,17 +53,23 @@ class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
         supportFragmentManager.beginTransaction()
             .replace(R.id.mapContainer, mapFragment)
             .commit()
-
         mapFragment.getMapAsync(this)
 
-
+        //Localizar al usuario
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        //Buscar direccion
+        binding.searchButton.setOnClickListener {
+            buscarDireccion()
+        }
     }
 
     /*------------------------------------------------------------ FUNCIONES MAPA ------------------------------------------------------------*/
     //Mapa ready
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+
+        updateMapStyle(luminosity = 0f)
 
         //Punto que ubica al usuario
         map.isMyLocationEnabled = true
@@ -173,6 +182,41 @@ class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         } catch (e: Resources.NotFoundException) {
             Log.e("MapaActivity", "No se pudo encontrar el estilo de mapa. Error: $e")
+        }
+    }
+
+    /*------------------------------------------------------------ FUNCIONES PARA BUSCAR DIRECCION ------------------------------------------------------------*/
+    //Funcion para buscar una direccion
+    private fun buscarDireccion() {
+        val direccion = binding.searchButton.text.toString().trim()
+
+        if (direccion.isNotEmpty()) {
+            val geocoder = Geocoder(this)
+            try {
+                val addressList = geocoder.getFromLocationName(direccion, 1)
+                if (addressList != null) {
+                    if (addressList.isNotEmpty()) {
+                        val address = addressList[0]
+                        val latLng = LatLng(address.latitude, address.longitude)
+
+                        // Crear un marcador en la dirección encontrada
+                        map.clear() // Limpia los marcadores existentes
+                        map.addMarker(MarkerOptions().position(latLng).title(direccion))
+
+                        // Mover la cámara al punto encontrado
+                        map.moveCamera(CameraUpdateFactory.newLatLng(latLng))
+                        map.animateCamera(CameraUpdateFactory.zoomTo(15f))
+                    } else {
+                        // No se encontró ninguna dirección
+                        Toast.makeText(this, "Dirección no encontrada", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: IOException) {
+                Log.e("MapaActivity", "Error al buscar la dirección: ${e.message}")
+                Toast.makeText(this, "Error al buscar la dirección", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(this, "Ingrese una dirección", Toast.LENGTH_SHORT).show()
         }
     }
 
