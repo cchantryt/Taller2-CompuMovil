@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
 * Permisos de galeria
 *
 * Mapa:
-* Probar polyline
+* Mostrar recorrido del usuario cuando se mueva (Polyline y on location change)
 * Buscar direccion ingresada, crear pin y mover la camara al punto encontrado (Geocoder) (no funcional)
 * Evento LongClick: Titulo del marcador (Geocoder)
 * Switch para activar/desactivar seguimiento

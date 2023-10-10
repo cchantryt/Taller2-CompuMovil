@@ -70,22 +70,11 @@ class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
         map = googleMap
 
         updateMapStyle(luminosity = 0f)
-
         //Punto que ubica al usuario
         map.isMyLocationEnabled = true
 
         //Controles de zoom
         map.uiSettings.isZoomControlsEnabled = true
-
-        //Listener para registrar puntos de la ruta cuando el usuario toca el mapa
-        map.setOnMapClickListener { latLng ->
-            //Agrega el punto al final de la ruta
-            rutaCoordenadas.add(latLng)
-
-            //Actualizar la polyline
-            actualizarRutaPolyline()
-        }
-
 
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
@@ -112,18 +101,6 @@ class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onPause() {
         super.onPause()
         unregisterLightSensorListener()
-    }
-
-    //Funcion para actualizar la polyline
-    private fun actualizarRutaPolyline() {
-        rutaPolyline?.remove() // Elimina la polyline existente
-
-        // Crea una nueva polyline con las coordenadas actuales de la ruta
-        rutaPolyline = map.addPolyline(PolylineOptions()
-            .addAll(rutaCoordenadas)
-            .color(Color.BLUE)
-            .width(5f)
-        )
     }
 
     /*------------------------------------------------------------ FUNCIONES SENSOR LUMINOSIDAD ------------------------------------------------------------*/
@@ -188,7 +165,7 @@ class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
     /*------------------------------------------------------------ FUNCIONES PARA BUSCAR DIRECCION ------------------------------------------------------------*/
     //Funcion para buscar una direccion
     private fun buscarDireccion() {
-        val direccion = binding.searchButton.text.toString().trim()
+        val direccion = binding.editText.text.toString().trim()
 
         if (direccion.isNotEmpty()) {
             val geocoder = Geocoder(this)
