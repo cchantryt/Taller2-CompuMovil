@@ -85,6 +85,9 @@ class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
             actualizarRutaPolyline()
         }
 
+        //Evento LongClick en el mapa
+        registerMapLongClickListener()
+
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
             ActivityCompat.checkSelfPermission(this,
@@ -220,6 +223,41 @@ class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
             .color(Color.BLUE)
             .width(5f)
         )
+    }
+
+    //Evento LongClick en el mapa
+    private fun registerMapLongClickListener() {
+        map.setOnMapLongClickListener { latLng ->
+            //Limpiamos marcadores
+            map.clear()
+
+            //Direccion del punto
+            obtenerDireccionDesdeLatLng(latLng) { direccion ->
+                //Nuevo marcador
+                map.addMarker(MarkerOptions().position(latLng).title(direccion))
+
+                //Movemos la camara al punto encontradoq
+                map.moveCamera(CameraUpdateFactory.newLatLng(latLng))
+                map.animateCamera(CameraUpdateFactory.zoomTo(15f))
+            }
+        }
+    }
+
+    //Funcion para obtener la direccion
+    private fun obtenerDireccionDesdeLatLng(latLng: LatLng, callback: (String) -> Unit) {
+        val geocoder = Geocoder(this)
+        try {
+            val addressList = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
+            if (addressList != null && addressList.isNotEmpty()) {
+                val address = addressList[0]
+                callback(address.getAddressLine(0) ?: "Dirección no disponible")
+            } else {
+                callback("Dirección no disponible")
+            }
+        } catch (e: IOException) {
+            Log.e("MapaActivity", "Error al obtener la dirección desde LatLng: ${e.message}")
+            callback("Dirección no disponible")
+        }
     }
 
 }
