@@ -88,6 +88,15 @@ class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
         //Evento LongClick en el mapa
         registerMapLongClickListener()
 
+        // Listener para actualizar la ruta cuando la ubicación del usuario cambia
+        map.setOnMyLocationChangeListener { location ->
+            // Agrega la nueva ubicación a la ruta
+            rutaCoordenadas.add(LatLng(location.latitude, location.longitude))
+
+            // Actualiza la polyline
+            actualizarRutaPolyline()
+        }
+
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
             ActivityCompat.checkSelfPermission(this,
@@ -223,6 +232,8 @@ class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
             .color(Color.BLUE)
             .width(5f)
         )
+        //Nueva polyline con las coordenadas actuales de la ruta
+        rutaPolyline?.points = rutaCoordenadas
     }
 
     //Evento LongClick en el mapa
@@ -243,7 +254,7 @@ class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    //Funcion para obtener la direccion
+    //Funcion para obtener la direccion en LongClick
     private fun obtenerDireccionDesdeLatLng(latLng: LatLng, callback: (String) -> Unit) {
         val geocoder = Geocoder(this)
         try {
