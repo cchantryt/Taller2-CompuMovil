@@ -76,6 +76,15 @@ class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
         //Controles de zoom
         map.uiSettings.isZoomControlsEnabled = true
 
+        //Posicion del usuario
+        map.setOnMapClickListener { latLng ->
+            //Agrega el punto al final de la ruta
+            rutaCoordenadas.add(latLng)
+
+            //Actualizar la polyline
+            actualizarRutaPolyline()
+        }
+
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
             ActivityCompat.checkSelfPermission(this,
@@ -183,6 +192,10 @@ class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
                         // Mover la cámara al punto encontrado
                         map.moveCamera(CameraUpdateFactory.newLatLng(latLng))
                         map.animateCamera(CameraUpdateFactory.zoomTo(15f))
+
+                        // Agregar el punto a la ruta
+                        rutaCoordenadas.add(latLng)
+                        actualizarRutaPolyline()
                     } else {
                         // No se encontró ninguna dirección
                         Toast.makeText(this, "Dirección no encontrada", Toast.LENGTH_SHORT).show()
@@ -195,6 +208,18 @@ class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
         } else {
             Toast.makeText(this, "Ingrese una dirección", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    //Funcion para actualizar la ruta
+    private fun actualizarRutaPolyline() {
+        rutaPolyline?.remove() // Elimina la polyline existente
+
+        // Crea una nueva polyline con las coordenadas actuales de la ruta
+        rutaPolyline = map.addPolyline(PolylineOptions()
+            .addAll(rutaCoordenadas)
+            .color(Color.BLUE)
+            .width(5f)
+        )
     }
 
 }
