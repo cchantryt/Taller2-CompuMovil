@@ -97,6 +97,8 @@ class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
             actualizarRutaPolyline()
         }
 
+        //Localizar al usuario
+        //Verificamos permisos
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
             ActivityCompat.checkSelfPermission(this,
@@ -114,75 +116,6 @@ class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    //Registramos los datos del sensor de luminosidad
-    override fun onResume() {
-        super.onResume()
-        registerLightSensorListener()
-    }
-    override fun onPause() {
-        super.onPause()
-        unregisterLightSensorListener()
-    }
-
-    /*------------------------------------------------------------ FUNCIONES SENSOR LUMINOSIDAD ------------------------------------------------------------*/
-    private val sensorManager: SensorManager by lazy {
-        getSystemService(Context.SENSOR_SERVICE) as SensorManager
-    }
-
-    private val lightSensor: Sensor? by lazy {
-        sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT)
-    }
-
-    private fun registerLightSensorListener() {
-        lightSensor?.let {
-            sensorManager.registerListener(lightSensorListener, it, SensorManager.SENSOR_DELAY_NORMAL)
-        }
-    }
-
-    private fun unregisterLightSensorListener() {
-        sensorManager.unregisterListener(lightSensorListener)
-    }
-
-    //Listener para el sensor de luminosidad
-    private val lightSensorListener = object : SensorEventListener {
-        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
-
-        override fun onSensorChanged(event: SensorEvent?) {
-            event?.let {
-                // Obtén el valor de la luminosidad desde el sensor
-                val luminosity = event.values[0]
-
-                // Actualiza el estilo del mapa según la luminosidad
-                updateMapStyle(luminosity)
-            }
-        }
-    }
-
-    //Umbral de luminosidad
-    companion object {
-        private const val LUMINOSITY_THRESHOLD = 700.0
-    }
-
-    //Funcion para actualizar el estilo del mapa
-    private fun updateMapStyle(luminosity: Float) {
-        val style = if (luminosity < LUMINOSITY_THRESHOLD) {
-            // Estilo oscuro para baja luminosidad
-            R.raw.map_day
-        } else {
-            // Estilo claro para alta luminosidad
-            R.raw.map_night
-        }
-
-        try {
-            val success = map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, style))
-            if (!success) {
-                Log.e("MapaActivity", "Fallo al aplicar estilo de mapa.")
-            }
-        } catch (e: Resources.NotFoundException) {
-            Log.e("MapaActivity", "No se pudo encontrar el estilo de mapa. Error: $e")
-        }
-    }
-
     /*------------------------------------------------------------ FUNCIONES PARA BUSCAR DIRECCION ------------------------------------------------------------*/
     //Funcion para buscar una direccion
     private fun buscarDireccion() {
@@ -197,19 +130,19 @@ class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
                         val address = addressList[0]
                         val latLng = LatLng(address.latitude, address.longitude)
 
+                        //Borramos marcadores anteriores
+                        map.clear()
                         // Crear un marcador en la dirección encontrada
-                        map.clear() // Limpia los marcadores existentes
                         map.addMarker(MarkerOptions().position(latLng).title(direccion))
 
-                        // Mover la cámara al punto encontrado
+                        //Movemos la camara
                         map.moveCamera(CameraUpdateFactory.newLatLng(latLng))
                         map.animateCamera(CameraUpdateFactory.zoomTo(15f))
 
-                        // Agregar el punto a la ruta
+                        //Agregar el punto al final de la ruta
                         rutaCoordenadas.add(latLng)
                         actualizarRutaPolyline()
                     } else {
-                        // No se encontró ninguna dirección
                         Toast.makeText(this, "Dirección no encontrada", Toast.LENGTH_SHORT).show()
                     }
                 }
@@ -224,15 +157,16 @@ class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
 
     //Funcion para actualizar la ruta
     private fun actualizarRutaPolyline() {
-        rutaPolyline?.remove() // Elimina la polyline existente
+        //Borramos la polyline anterior
+        rutaPolyline?.remove()
 
-        // Crea una nueva polyline con las coordenadas actuales de la ruta
+        //Nueva polyline con las coordenadas de la ruta
         rutaPolyline = map.addPolyline(PolylineOptions()
             .addAll(rutaCoordenadas)
             .color(Color.BLUE)
             .width(5f)
         )
-        //Nueva polyline con las coordenadas actuales de la ruta
+        //Nuevo punto en la ruta
         rutaPolyline?.points = rutaCoordenadas
     }
 
@@ -266,9 +200,76 @@ class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
                 callback("Dirección no disponible")
             }
         } catch (e: IOException) {
-            Log.e("MapaActivity", "Error al obtener la dirección desde LatLng: ${e.message}")
+            Log.e("MapaActivity", "Error: ${e.message}")
             callback("Dirección no disponible")
         }
     }
 
+    /*------------------------------------------------------------ FUNCIONES SENSOR LUMINOSIDAD ------------------------------------------------------------*/
+    //Sensor de luminosidad manager
+    private val sensorManager: SensorManager by lazy {
+        getSystemService(Context.SENSOR_SERVICE) as SensorManager
+    }
+    //Sensor de luminosidad oficial
+    private val lightSensor: Sensor? by lazy {
+        sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT)
+    }
+    //Registramos el listener del sensor de luminosidad
+    private fun registerLightSensorListener() {
+        lightSensor?.let {
+            sensorManager.registerListener(lightSensorListener, it, SensorManager.SENSOR_DELAY_NORMAL)
+        }
+    }
+    //Borramos el listener del sensor de luminosidad
+    private fun unregisterLightSensorListener() {
+        sensorManager.unregisterListener(lightSensorListener)
+    }
+    //Registramos los datos del sensor de luminosidad cuando la app esta en primer plano
+    override fun onResume() {
+        super.onResume()
+        registerLightSensorListener()
+    }
+    override fun onPause() {
+        super.onPause()
+        unregisterLightSensorListener()
+    }
+
+    //Listener para el sensor de luminosidad
+    private val lightSensorListener = object : SensorEventListener {
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+
+        override fun onSensorChanged(event: SensorEvent?) {
+            event?.let {
+                //Obtenemos la luminosidad
+                val luminosity = event.values[0]
+
+                //Actualizamos el estilo del mapa
+                updateMapStyle(luminosity)
+            }
+        }
+    }
+
+    //Umbral de luminosidad
+    companion object {
+        private const val LUMINOSITY_THRESHOLD = 700.0
+    }
+
+    //Funcion para actualizar el estilo del mapa
+    private fun updateMapStyle(luminosity: Float) {
+        val style = if (luminosity < LUMINOSITY_THRESHOLD) {
+            //Claro
+            R.raw.map_day
+        } else {
+            //Oscuro
+            R.raw.map_night
+        }
+        try {
+            val success = map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, style))
+            if (!success) {
+                Log.e("MapaActivity", "Fallo al aplicar estilo de mapa.")
+            }
+        } catch (e: Resources.NotFoundException) {
+            Log.e("MapaActivity", "No se pudo encontrar el estilo de mapa. Error: $e")
+        }
+    }
 }

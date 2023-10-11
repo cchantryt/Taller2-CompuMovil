@@ -29,7 +29,6 @@ class MainActivity : AppCompatActivity() {
                     this,
                     Manifest.permission.ACCESS_FINE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED -> {
-                    //Toast.makeText(this, "mapa", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this, MapaActivity::class.java))
                 }
                 shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> {
@@ -47,16 +46,10 @@ class MainActivity : AppCompatActivity() {
 *
 * Camara: Completado
 *
-* Galeria:
-* Permisos de galeria
+* Galeria:Permisos de galeria
 *
-* Mapa:
-* Mostrar recorrido del usuario cuando se mueva (Polyline y on location change)
-* Buscar direccion ingresada, crear pin y mover la camara al punto encontrado (Geocoder) (no funcional)
-* Evento LongClick: Titulo del marcador (Geocoder)
-* Switch para activar/desactivar seguimiento
+* Mapa: Completado
 *
-* Bono:
-* TODO
+* Bono: Sin hacer
 *
 * */
