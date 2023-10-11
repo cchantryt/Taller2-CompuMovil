@@ -257,11 +257,11 @@ class MapaActivity : AppCompatActivity(), OnMapReadyCallback {
     //Funcion para actualizar el estilo del mapa
     private fun updateMapStyle(luminosity: Float) {
         val style = if (luminosity < LUMINOSITY_THRESHOLD) {
-            //Claro
-            R.raw.map_day
-        } else {
             //Oscuro
             R.raw.map_night
+        } else {
+            //Claro
+            R.raw.map_day
         }
         try {
             val success = map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, style))

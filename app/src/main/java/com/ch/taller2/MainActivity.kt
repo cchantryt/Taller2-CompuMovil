@@ -53,3 +53,10 @@ class MainActivity : AppCompatActivity() {
 * Bono: Sin hacer
 *
 * */
+
+/*Mejoras
+
+* Limpiar polylines y marcarla mejor
+* Mostrar ubicaciones cercanas
+*
+* */
